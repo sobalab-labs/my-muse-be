@@ -1,0 +1,200 @@
+openapi: 3.0.0
+info:
+  title: Artist & Concert Event Management Hub API
+  version: 1.0.0
+  description: API for managing artist discovery, event feeds, and user notification subscriptions.
+
+servers:
+  - url: https://api.my-muse.com/v1
+
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate user via OAuth
+      tags: [Auth]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider, code]
+              properties:
+                provider: { type: string, enum: [google, kakao] }
+                code: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /artists:
+    get:
+      summary: Search or list artists
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Artist' } }
+
+  /artists/{artistId}:
+    get:
+      summary: Get artist details
+      parameters:
+        - name: artistId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Artist' }
+
+  /events:
+    get:
+      summary: Search or list events (feed)
+      parameters:
+        - name: scope
+          in: query
+          schema: { type: string, enum: [trending, following] }
+        - name: artistId
+          in: query
+          schema: { type: string }
+        - name: region
+          in: query
+          schema: { type: string, enum: [japan, korea, other] }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Event' } }
+
+  /events/{eventId}:
+    get:
+      summary: Get event details
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Event' }
+
+  /users/me:
+    get:
+      summary: Get current user profile
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+    delete:
+      summary: Delete account
+      responses:
+        '204': { description: No Content }
+
+  /users/me/followed-artists:
+    get:
+      summary: List followed artists
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Artist' } }
+    post:
+      summary: Follow an artist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [artistId]
+              properties:
+                artistId: { type: string }
+    delete:
+      summary: Unfollow an artist
+      parameters:
+        - name: artistId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: No Content }
+
+  /users/me/notification-subscription:
+    get:
+      summary: Get notification configuration
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotificationSubscription' }
+    put:
+      summary: Update notification configuration
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NotificationSubscription' }
+
+  /users/me/onboarding:
+    post:
+      summary: Complete onboarding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                followedArtistIds: { type: array, items: { type: string } }
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string }
+        name: { type: string }
+        oauthProvider: { type: string, enum: [google, kakao] }
+        preferredLocale: { type: string, enum: [ko, ja] }
+        onboardingCompleted: { type: boolean }
+
+    Artist:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        genre: { type: string }
+        nation: { type: string }
+        snsUrls: { type: array, items: { type: object, properties: { platform: { type: string }, url: { type: string } } } }
+        imageUrl: { type: string, format: uri }
+
+    Event:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        date: { type: string, format: date-time }
+        place: { type: string }
+        durationMinutes: { type: integer }
+        ticketingUrl: { type: string, format: uri }
+        region: { type: string, enum: [japan, korea, other] }
+
+    NotificationSubscription:
+      type: object
+      properties:
+        channels: { type: object, properties: { email: { type: boolean }, kakao: { type: boolean } } }
+        artistSubscriptions:
+          type: array
+          items:
+            type: object
+            properties:
+              artistId: { type: string }
+              newEvents: { type: boolean }
+              ticketOpenBundle: { type: boolean }
+              discography: { type: boolean }
+        generalWeeklyUpdates: { type: boolean }
