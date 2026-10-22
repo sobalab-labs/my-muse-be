@@ -1,13 +1,13 @@
-package com.sobalab.bandaid.api;
+package com.sobalab.mymuse.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BandaidApiApplication {
+public class MymuseApiApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(BandaidApiApplication.class, args);
+        SpringApplication.run(MymuseApiApplication.class, args);
     }
 
 }

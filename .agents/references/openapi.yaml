@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: Artist & Concert Event Management Hub API
+  title: Artist & Concert Concert Management Hub API
   version: 1.0.0
-  description: API for managing artist discovery, event feeds, and user notification subscriptions.
+  description: API for managing artist discovery, concert feeds, and user notification subscriptions.
 
 servers:
   - url: https://api.my-muse.com/v1
@@ -51,9 +51,9 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Artist' }
 
-  /events:
+  /concerts:
     get:
-      summary: Search or list events (feed)
+      summary: Search or list concerts (feed)
       parameters:
         - name: scope
           in: query
@@ -68,13 +68,13 @@ paths:
         '200':
           content:
             application/json:
-              schema: { type: array, items: { $ref: '#/components/schemas/Event' } }
+              schema: { type: array, items: { $ref: '#/components/schemas/Concert' } }
 
-  /events/{eventId}:
+  /concerts/{concertId}:
     get:
-      summary: Get event details
+      summary: Get concert details
       parameters:
-        - name: eventId
+        - name: concertId
           in: path
           required: true
           schema: { type: string }
@@ -82,7 +82,7 @@ paths:
         '200':
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Event' }
+              schema: { $ref: '#/components/schemas/Concert' }
 
   /users/me:
     get:
@@ -119,6 +119,36 @@ paths:
       summary: Unfollow an artist
       parameters:
         - name: artistId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: No Content }
+
+  /users/me/bookmarked-concerts:
+    get:
+      summary: List bookmarked concerts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/BookmarkedConcert' } }
+    post:
+      summary: Bookmark an concert
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [concertId]
+              properties:
+                concertId: { type: string }
+
+  /users/me/bookmarked-concerts/{concertId}:
+    delete:
+      summary: Unbookmark an concert
+      parameters:
+        - name: concertId
           in: path
           required: true
           schema: { type: string }
@@ -173,7 +203,7 @@ components:
         snsUrls: { type: array, items: { type: object, properties: { platform: { type: string }, url: { type: string } } } }
         imageUrl: { type: string, format: uri }
 
-    Event:
+    Concert:
       type: object
       properties:
         id: { type: string, format: uuid }
@@ -194,7 +224,15 @@ components:
             type: object
             properties:
               artistId: { type: string }
-              newEvents: { type: boolean }
+              newConcerts: { type: boolean }
               ticketOpenBundle: { type: boolean }
               discography: { type: boolean }
         generalWeeklyUpdates: { type: boolean }
+
+    BookmarkedConcert:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        concertId: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }

@@ -1,4 +1,4 @@
-package com.sobalab.bandaid.api;
+package com.sobalab.mymuse.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
