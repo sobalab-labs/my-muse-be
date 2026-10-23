@@ -1,0 +1,33 @@
+name: Test API
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'services/api/**'
+      - '.github/workflows/test-api.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Run tests
+        run: ./gradlew build --no-daemon # Use --no-daemon for CI environments to prevent memory leaks
+      - name: Upload Test Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: build/reports/tests/test/**
