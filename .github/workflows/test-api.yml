@@ -4,8 +4,6 @@ on:
   pull_request:
     branches:
       - develop
-      # remove the following line after workflow test-run succeeds
-      - ci/pr-quality-gate
     paths:
       - 'services/api/**'
       - '.github/workflows/test-api.yml'

@@ -4,4 +4,3 @@ reviews:
     drafts: false
     base_branches:
       - develop
-      - ci/pr-quality-gate
