@@ -56,5 +56,5 @@ jobs:
       #     aws sts get-caller-identity
 
       - name: Deploy CDK Stack
-        run: npx cdk deploy --require-approval never
+        run: npx aws-cdk@latest deploy --require-approval never
         working-directory: infra
