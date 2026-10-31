@@ -1,30 +1,50 @@
 package com.sobalab.mymuse.api.controller;
 
-import com.sobalab.mymuse.api.service.ConcertService;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.sobalab.mymuse.api.security.AppOAuth2UserService;
+import com.sobalab.mymuse.api.security.AppOidcUserService;
+import com.sobalab.mymuse.api.service.ConcertService;
+
 @WebMvcTest(ConcertController.class)
+@WithMockUser
 public class ConcertControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean 
+    @MockitoBean
     private ConcertService concertService;
 
+    @MockitoBean
+    private AppOidcUserService appOidcUserService;
+
+    @MockitoBean
+    private AppOAuth2UserService appOAuth2UserService;
+
     @Test
-    void listConcerts_ShouldReturnOk() throws Exception {
+    void searchConcerts_ShouldReturnOk() throws Exception {
         mockMvc.perform(get("/concerts")
-                        .param("scope", "following")
-                        .param("artistId", "123e4567-e89b-12d3-a456-426614174000")
-                        .param("region", "korea"))
+                .param("q", "concert")
+                .param("artistId", "123e4567-e89b-12d3-a456-426614174000")
+                .param("region", "korea")
+                .param("sort", "dday")
+                .param("cursor", "abc")
+                .param("limit", "20"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void searchConcerts_WithoutParams_ShouldReturnOk() throws Exception {
+        mockMvc.perform(get("/concerts"))
                 .andExpect(status().isOk());
     }
 

@@ -9,9 +9,8 @@ This document outlines the critical transaction scenarios for the Artist & Conce
 *   **Trigger**: User signs in via OAuth (`/auth/login`) for the first time.
 *   **Logical Steps**:
     1.  Create `User` entry (if not exists) based on `oauthProvider` and `oauthId`.
-    2.  Initialize `NotificationSubscription` for the `user_id`.
-    3.  Initialize `ArtistSubscriptionPreferences` for the `user_id`.
-    4.  *(Optional)* Create `UserFollowedArtist` associations if artists were selected during onboarding (`/users/me/onboarding`).
+    2.  Initialize `NotificationPreferences` for the `user_id`.
+    3.  *(Optional)* Create `UserFollowedArtist` associations if artists were selected during onboarding (`/users/me/onboarding`).
 *   **Invariants**: `User` uniqueness on `(oauthProvider, oauthId)` must be enforced.
 
 ### 2.2 Artist Follow/Unfollow
@@ -24,11 +23,10 @@ This document outlines the critical transaction scenarios for the Artist & Conce
 *   **Invariants**: `UserFollowedArtist` must have `UNIQUE` constraint on `(user_id, artist_id)` to prevent duplicate entries.
 
 ### 2.3 Notification Configuration Update
-*   **Trigger**: User updates notification settings (`/users/me/notification-subscription`).
+*   **Trigger**: User updates notification settings (`/users/me/notification-preferences`).
 *   **Logical Steps**:
-    1.  Update `NotificationSubscription` (email/kakao channels, weekly updates).
-    2.  Update `ArtistSubscriptionPreferences` (per-artist toggles for concerts/tickets/discography).
-*   **Invariants**: `NotificationSubscription` and `ArtistSubscriptionPreferences` must maintain 1:1 relationship with `User` (`UNIQUE` constraint on `user_id`).
+    1.  Update `NotificationPreferences` (channel email/kakao toggles, general weekly updates, artist new concert notifications, bookmarked event ticket open notifications).
+*   **Invariants**: `NotificationPreferences` must maintain 1:1 relationship with `User` (`UNIQUE` constraint on `user_id`).
 
 ### 2.4 Concert Querying (Feed Generation)
 *   **Trigger**: User views Home (`/events` with `scope=following` or `trending`).
@@ -43,8 +41,7 @@ This document outlines the critical transaction scenarios for the Artist & Conce
 *   **Logical Steps**:
     1.  Delete `User` record.
     2.  Cascade/Clean up associated records:
-        *   `NotificationSubscription`
-        *   `ArtistSubscriptionPreferences`
+        *   `NotificationPreferences`
         *   `UserFollowedArtist`
         *   `UserLikeConcert`
 *   **Invariants**: All foreign keys must enforce `ON DELETE CASCADE` or ensure proper application-level cleanup to maintain referential integrity.

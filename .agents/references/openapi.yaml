@@ -24,18 +24,39 @@ paths:
       responses:
         '200': { description: OK }
 
+  /auth/logout:
+    post:
+      summary: Invalidate current user session
+      tags: [Auth]
+      responses:
+        '204': { description: No Content }
+
   /artists:
     get:
-      summary: Search or list artists
+      summary: Search artists with cursor pagination
       parameters:
         - name: q
           in: query
           schema: { type: string }
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
       responses:
         '200':
           content:
             application/json:
-              schema: { type: array, items: { $ref: '#/components/schemas/Artist' } }
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Artist' }
+                  nextCursor:
+                    type: string
+                    nullable: true
 
   /artists/{artistId}:
     get:
@@ -53,22 +74,72 @@ paths:
 
   /concerts:
     get:
-      summary: Search or list concerts (feed)
+      summary: Search concerts with cursor pagination
       parameters:
-        - name: scope
-          in: query
-          schema: { type: string, enum: [trending, following] }
-        - name: artistId
+        - name: q
           in: query
           schema: { type: string }
         - name: region
           in: query
           schema: { type: string, enum: [japan, korea, other] }
+        - name: sort
+          in: query
+          schema: { type: string, enum: [dday, recently_announced] }
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
       responses:
         '200':
           content:
             application/json:
-              schema: { type: array, items: { $ref: '#/components/schemas/Concert' } }
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Concert' }
+                  nextCursor:
+                    type: string
+                    nullable: true
+
+  /feed/trending:
+    get:
+      summary: Get public trending concert feed
+      parameters:
+        - name: view
+          in: query
+          schema: { type: string, enum: [list, calendar] }
+        - name: month
+          in: query
+          schema: { type: string }
+        - name: region
+          in: query
+          schema: { type: string, enum: [japan, korea, other] }
+        - name: sort
+          in: query
+          schema: { type: string, enum: [dday, recently_announced] }
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Concert' }
+                  nextCursor:
+                    type: string
+                    nullable: true
 
   /concerts/{concertId}:
     get:
@@ -125,6 +196,39 @@ paths:
       responses:
         '204': { description: No Content }
 
+  /users/me/feed:
+    get:
+      summary: Get user followed concert feed (private)
+      parameters:
+        - name: view
+          in: query
+          schema: { type: string, enum: [list, calendar] }
+        - name: month
+          in: query
+          schema: { type: string }
+        - name: sort
+          in: query
+          schema: { type: string, enum: [dday, recently_announced] }
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Concert' }
+                  nextCursor:
+                    type: string
+                    nullable: true
+
   /users/me/bookmarked-concerts:
     get:
       summary: List bookmarked concerts
@@ -162,13 +266,13 @@ paths:
         '200':
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/NotificationSubscription' }
+              schema: { $ref: '#/components/schemas/NotificationPreferences' }
     put:
       summary: Update notification configuration
       requestBody:
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/NotificationSubscription' }
+            schema: { $ref: '#/components/schemas/NotificationPreferences' }
 
   /users/me/onboarding:
     post:
@@ -214,7 +318,7 @@ components:
         ticketingUrl: { type: string, format: uri }
         region: { type: string, enum: [japan, korea, other] }
 
-    NotificationSubscription:
+    NotificationPreferences:
       type: object
       properties:
         channels: { type: object, properties: { email: { type: boolean }, kakao: { type: boolean } } }

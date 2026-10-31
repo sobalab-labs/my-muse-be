@@ -14,15 +14,23 @@ CREATE TYPE venue_type AS ENUM ('hall', 'dome', 'stadium', 'other');
 -- Users
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    email_verified BOOLEAN DEFAULT FALSE NOT NULL,
     name VARCHAR(255) NOT NULL,
-    oauth_provider oauth_provider NOT NULL,
-    oauth_id VARCHAR(255) NOT NULL,
     preferred_locale preferred_locale NOT NULL,
     onboarding_completed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (oauth_provider, oauth_id)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User Identities
+CREATE TABLE user_identities (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider oauth_provider NOT NULL,
+    provider_subject VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (provider, provider_subject)
 );
 
 -- Artists
@@ -87,16 +95,10 @@ CREATE TABLE user_followed_artist (
 CREATE TABLE notification_subscriptions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-    email_enabled BOOLEAN DEFAULT FALSE,
-    kakao_enabled BOOLEAN DEFAULT FALSE,
+    channel_email_enabled BOOLEAN DEFAULT FALSE,
+    channel_kakao_enabled BOOLEAN DEFAULT FALSE,
     general_weekly_updates BOOLEAN DEFAULT FALSE,
+    artist_new_concert_enabled BOOLEAN DEFAULT FALSE,
+    bookmarked_event_ticket_open_enabled BOOLEAN DEFAULT FALSE,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE artist_subscription_preferences (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-    new_concerts_enabled BOOLEAN DEFAULT FALSE,
-    ticket_open_bundle_enabled BOOLEAN DEFAULT FALSE,
-    discography_enabled BOOLEAN DEFAULT FALSE
 );

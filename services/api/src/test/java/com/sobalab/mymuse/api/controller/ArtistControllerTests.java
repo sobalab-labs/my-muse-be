@@ -1,16 +1,21 @@
 package com.sobalab.mymuse.api.controller;
 
-import com.sobalab.mymuse.api.service.ArtistService;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest (ArtistController.class)
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.sobalab.mymuse.api.security.AppOAuth2UserService;
+import com.sobalab.mymuse.api.security.AppOidcUserService;
+import com.sobalab.mymuse.api.service.ArtistService;
+
+@WebMvcTest(ArtistController.class)
+@WithMockUser
 public class ArtistControllerTests {
 
     @Autowired
@@ -19,9 +24,30 @@ public class ArtistControllerTests {
     @MockitoBean
     private ArtistService artistService;
 
+    @MockitoBean
+    private AppOidcUserService appOidcUserService;
+
+    @MockitoBean
+    private AppOAuth2UserService appOAuth2UserService;
+
     @Test
-    void listArtists_ShouldReturnOk() throws Exception {
+    void searchArtists_ShouldReturnOk() throws Exception {
         mockMvc.perform(get("/artists"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void searchArtists_WithQuery_ShouldReturnOk() throws Exception {
+        mockMvc.perform(get("/artists").param("q", "test"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void searchArtists_WithPagination_ShouldReturnOk() throws Exception {
+        mockMvc.perform(get("/artists")
+                .param("q", "test")
+                .param("cursor", "abc")
+                .param("limit", "10"))
                 .andExpect(status().isOk());
     }
 

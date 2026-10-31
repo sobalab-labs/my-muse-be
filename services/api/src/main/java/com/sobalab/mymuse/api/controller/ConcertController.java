@@ -1,10 +1,12 @@
 package com.sobalab.mymuse.api.controller;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.sobalab.mymuse.api.dto.ConcertDto;
 import com.sobalab.mymuse.api.service.ConcertService;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/concerts")
@@ -16,13 +18,17 @@ public class ConcertController {
         this.concertService = concertService;
     }
 
-    @GetMapping
-    public List<ConcertDto> listConcerts(
-            @RequestParam(required = false) String scope,
-            @RequestParam(required = false) String artistId,
-            @RequestParam(required = false) String region) {
-        return concertService.listConcerts(scope, artistId, region);
-    }
+    // @GetMapping
+    // public CursorResponse<ConcertDto> searchConcerts(
+    // @RequestParam(required = false) String q,
+    // @RequestParam(required = false) String region,
+    // @RequestParam(required = false) String sort,
+    // @RequestParam(required = false) String cursor,
+    // @RequestParam(required = false) Integer limit) {
+    // List<ConcertDto> items = concertService.searchConcerts(q, region, sort,
+    // cursor, limit);
+    // return new CursorResponse<>(items, null, false);
+    // }
 
     @GetMapping("/{concertId}")
     public ConcertDto getConcert(@PathVariable String concertId) {

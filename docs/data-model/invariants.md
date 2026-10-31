@@ -17,7 +17,7 @@ This document defines the data invariantsâ€”the immutable rules and constraintsâ
     - `Concert.venue_id` must be `NOT NULL` (enforcing strict binding to a `Venue`).
 
 ### 2.3 Preferences & Configuration
-- **Subscription Singletons**: `NotificationSubscription` and `ArtistSubscriptionPreferences` must have a `UNIQUE` constraint on `user_id` (enforcing a 1:1 relationship with `User`).
+- **Subscription Singleton**: `NotificationPreferences` must have a `UNIQUE` constraint on `user_id` (enforcing a 1:1 relationship with `User`).
 
 ## 3. Relational & Business Invariants
 
@@ -43,5 +43,4 @@ This document defines the data invariantsâ€”the immutable rules and constraintsâ
 | Concert | `title`, `date`, `official_announcement_url`, `venue_id` | `NOT NULL` |
 | UserFollowedArtist | `(user_id, artist_id)` | `UNIQUE`, `PK` |
 | UserLikeConcert | `(user_id, concert_id)` | `UNIQUE`, `PK` |
-| NotificationSubscription | `user_id` | `UNIQUE` |
-| ArtistSubscriptionPreferences | `user_id` | `UNIQUE` |
+| NotificationPreferences | `user_id` | `UNIQUE` |

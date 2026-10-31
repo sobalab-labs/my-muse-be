@@ -168,7 +168,7 @@ Authenticated users can bookmark (follow) individual events of interest to track
 - **User**: Represents an authenticated application user with profile info, language preference, and OAuth identity.
 - **Artist**: Represents a musician/artist with attributes: name, genre, nation, and a list of website/SNS URLs.
 - **Event (Concert)**: Represents a musical performance with attributes: associated artist(s), date, place, duration, ticketing URL, and official announcement URL.
-- **NotificationSubscription**: Represents user preferences for global notification subscriptions for followed artists (new events, ticket opens with fixed timings, discography updates with 1 > 2 > 3 priority) and general weekly event update subscriptions via email or Kakao message.
+- **NotificationPreferences**: Represents user preferences for global notification subscriptions for followed artists (new events, ticket opens with fixed timings, discography updates with 1 > 2 > 3 priority) and general weekly event update subscriptions via email or Kakao message.
 - **BookmarkedEvent**: Represents an event that a user has bookmarked for personal tracking.
 
 ## Success Criteria *(mandatory)*

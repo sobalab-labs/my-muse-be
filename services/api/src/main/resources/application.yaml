@@ -1,0 +1,10 @@
+spring:
+    application:
+        name: mymuse-api
+    security:
+        oauth2:
+            client:
+                registration:
+                    google:
+                        client-id: "abcd"
+                        client-secret: "password"
