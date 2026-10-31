@@ -1,3 +1,4 @@
+# https://github.com/aws-actions/configure-aws-credentials#quick-start-oidc-recommended
 name: Deploy CDK Infrastructure
 
 on:
@@ -23,15 +24,23 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: 'infra/package-lock.json'
 
       - name: Install dependencies
         run: npm ci
+        working-directory: infra
 
-      - name: Configure AWS Credentials (OIDC Role Assumption)
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: ap-northeast-2
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # - name: Additional steps
+      #   run: |
+      #     # Your commands that require AWS credentials
+      #     aws sts get-caller-identity
 
       - name: Deploy CDK Stack
         run: npx cdk deploy --require-approval never
+        working-directory: infra
