@@ -8,8 +8,8 @@ public record ArtistDto(
         String name,
         String genre,
         Nation nation,
-        List<ArtistSnsDto> snsUrls,
+        List<ArtistLinkDto> snsUrls,
         String imageUrl
 ) {
-    public record ArtistSnsDto(String platform, String url) {}
+    public record ArtistLinkDto(String platform, String url) {}
 }

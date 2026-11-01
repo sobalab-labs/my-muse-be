@@ -1,5 +1,9 @@
 package com.sobalab.mymuse.api.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.sobalab.mymuse.api.model.enums.Nation;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,4 +26,11 @@ public class Artist extends BaseEntity {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @OneToMany(mappedBy = "artist", fetch = FetchType.LAZY)
+    private List<ArtistLink> links = new ArrayList<>();
+
+    public List<ArtistLink> getLinks() {
+        return Collections.unmodifiableList(links);
+    }
 }

@@ -1,11 +1,11 @@
 package com.sobalab.mymuse.api.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,6 +27,7 @@ import com.sobalab.mymuse.api.dto.UserDto;
 import com.sobalab.mymuse.api.service.UserService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/users/me")
@@ -60,7 +61,7 @@ public class UserController {
     }
 
     @DeleteMapping("/followed-artists/{artistId}")
-    public ResponseEntity<Void> unfollowArtist(@PathVariable @Validated String artistId) {
+    public ResponseEntity<Void> unfollowArtist(@PathVariable UUID artistId) {
         userService.unfollowArtist(artistId);
         return ResponseEntity.noContent().build();
     }
@@ -76,7 +77,7 @@ public class UserController {
     }
 
     @DeleteMapping("/bookmarked-concerts/{concertId}")
-    public ResponseEntity<Void> unbookmarkConcert(@PathVariable @Validated String concertId) {
+    public ResponseEntity<Void> unbookmarkConcert(@PathVariable UUID concertId) {
         userService.unbookmarkConcert(concertId);
         return ResponseEntity.noContent().build();
     }
@@ -143,12 +144,12 @@ public class UserController {
         userService.completeOnboarding(request.followedArtistIds());
     }
 
-    public record FollowArtistRequest(String artistId) {
+    public record FollowArtistRequest(@NotNull UUID artistId) {
     }
 
-    public record BookmarkConcertRequest(String concertId) {
+    public record BookmarkConcertRequest(@NotNull UUID concertId) {
     }
 
-    public record OnboardingRequest(List<String> followedArtistIds) {
+    public record OnboardingRequest(List<UUID> followedArtistIds) {
     }
 }

@@ -1,17 +1,20 @@
 package com.sobalab.mymuse.api.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.sobalab.mymuse.api.dto.ArtistDto;
 import com.sobalab.mymuse.api.dto.ConcertDto;
 import com.sobalab.mymuse.api.dto.CursorResponse;
+import com.sobalab.mymuse.api.dto.SearchResponse;
 import com.sobalab.mymuse.api.service.SearchService;
 
 @RestController
-@RequestMapping("/search")
+@RequestMapping("/api/search")
 public class SearchController {
 
     private final SearchService searchService;
@@ -21,16 +24,27 @@ public class SearchController {
     }
 
     @GetMapping
-    public SearchResponseDto search(
-            @RequestParam(required = false) String q,
-            @RequestParam(required = false) String cursor,
-            @RequestParam(required = false) Integer limit) {
-        SearchResponseDto searchResponse = searchService.search(q, cursor, limit);
-        return searchResponse;
+    public SearchResponse search(
+            @RequestParam String q,
+            @RequestParam(required = false, defaultValue = "artist,concert") String types,
+            @RequestParam(required = false, defaultValue = "20") Integer limit) {
+        if (q == null || q.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Query parameter 'q' must not be blank.");
+        }
+        return searchService.search(q, types, limit);
     }
 
-    public record SearchResponseDto(
-            CursorResponse<ArtistDto> artists,
-            CursorResponse<ConcertDto> concerts) {
+    @GetMapping("/artists")
+    public CursorResponse<ArtistDto> searchArtists(
+            @RequestParam String cursor,
+            @RequestParam(required = false, defaultValue = "10") Integer limit) {
+        return searchService.searchArtists(cursor, limit);
+    }
+
+    @GetMapping("/concerts")
+    public CursorResponse<ConcertDto> searchConcerts(
+            @RequestParam String cursor,
+            @RequestParam(required = false, defaultValue = "20") Integer limit) {
+        return searchService.searchConcerts(cursor, limit);
     }
 }

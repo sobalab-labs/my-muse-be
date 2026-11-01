@@ -19,6 +19,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser
 public class UserControllerTests {
 
+    private static final String VALID_ARTIST_ID = "123e4567-e89b-12d3-a456-426614174000";
+    private static final String VALID_CONCERT_ID = "123e4567-e89b-12d3-a456-426614174001";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -54,7 +57,7 @@ public class UserControllerTests {
         mockMvc.perform(post("/users/me/followed-artists")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"artistId\": \"123\"}"))
+                        .content("{\"artistId\": \"" + VALID_ARTIST_ID + "\"}"))
                 .andExpect(status().isOk());
     }
 
@@ -69,7 +72,7 @@ public class UserControllerTests {
 
     @Test
     void unfollowArtist_ShouldReturnNoContent() throws Exception {
-        mockMvc.perform(delete("/users/me/followed-artists/123").with(csrf()))
+        mockMvc.perform(delete("/users/me/followed-artists/" + VALID_ARTIST_ID).with(csrf()))
                 .andExpect(status().isNoContent());
     }
 
@@ -84,7 +87,7 @@ public class UserControllerTests {
         mockMvc.perform(post("/users/me/bookmarked-concerts")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"concertId\": \"123\"}"))
+                        .content("{\"concertId\": \"" + VALID_CONCERT_ID + "\"}"))
                 .andExpect(status().isOk());
     }
 
@@ -99,7 +102,7 @@ public class UserControllerTests {
 
     @Test
     void unbookmarkConcert_ShouldReturnNoContent() throws Exception {
-        mockMvc.perform(delete("/users/me/bookmarked-concerts/123").with(csrf()))
+        mockMvc.perform(delete("/users/me/bookmarked-concerts/" + VALID_CONCERT_ID).with(csrf()))
                 .andExpect(status().isNoContent());
     }
 
@@ -132,7 +135,7 @@ public class UserControllerTests {
         mockMvc.perform(post("/users/me/onboarding")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"followedArtistIds\": []}"))
+                        .content("{\"followedArtistIds\": [\"" + VALID_ARTIST_ID + "\"]}"))
                 .andExpect(status().isOk());
     }
 }

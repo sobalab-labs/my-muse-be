@@ -31,27 +31,6 @@ public class ArtistControllerTests {
     private AppOAuth2UserService appOAuth2UserService;
 
     @Test
-    void searchArtists_ShouldReturnOk() throws Exception {
-        mockMvc.perform(get("/artists"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void searchArtists_WithQuery_ShouldReturnOk() throws Exception {
-        mockMvc.perform(get("/artists").param("q", "test"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void searchArtists_WithPagination_ShouldReturnOk() throws Exception {
-        mockMvc.perform(get("/artists")
-                .param("q", "test")
-                .param("cursor", "abc")
-                .param("limit", "10"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     void getArtist_ShouldReturnOk() throws Exception {
         mockMvc.perform(get("/artists/123e4567-e89b-12d3-a456-426614174000"))
                 .andExpect(status().isOk());

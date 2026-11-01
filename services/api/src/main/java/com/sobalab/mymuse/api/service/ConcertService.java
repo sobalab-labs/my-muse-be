@@ -24,20 +24,6 @@ import lombok.RequiredArgsConstructor;
 public class ConcertService {
     private final ConcertRepository concertRepository;
 
-    // @Transactional(readOnly = true)
-    // public List<ConcertDto> searchConcerts(String q, String region, String sort,
-    // String cursor, Integer limit) {
-    // int pageSize = (limit != null && limit > 0) ? limit : 20;
-    // Region regionEnum = parseRegion(region);
-    // Sort sorting = parseSort(sort);
-    // PageRequest pageRequest = PageRequest.of(0, pageSize,
-    // sorting.and(Sort.by(Sort.Direction.DESC, "id")));
-
-    // List<Concert> concerts = concertRepository.searchConcerts(q, regionEnum,
-    // pageRequest);
-    // return concerts.stream().map(toDto).collect(Collectors.toList());
-    // }
-
     @Transactional(readOnly = true)
     public List<ConcertDto> getTrendingFeed(String view, String month, String region, String sort, String cursor,
             Integer limit) {

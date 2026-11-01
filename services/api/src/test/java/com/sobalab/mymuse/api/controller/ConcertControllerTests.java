@@ -31,24 +31,6 @@ public class ConcertControllerTests {
     private AppOAuth2UserService appOAuth2UserService;
 
     @Test
-    void searchConcerts_ShouldReturnOk() throws Exception {
-        mockMvc.perform(get("/concerts")
-                .param("q", "concert")
-                .param("artistId", "123e4567-e89b-12d3-a456-426614174000")
-                .param("region", "korea")
-                .param("sort", "dday")
-                .param("cursor", "abc")
-                .param("limit", "20"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void searchConcerts_WithoutParams_ShouldReturnOk() throws Exception {
-        mockMvc.perform(get("/concerts"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     void getConcert_ShouldReturnOk() throws Exception {
         mockMvc.perform(get("/concerts/123e4567-e89b-12d3-a456-426614174000"))
                 .andExpect(status().isOk());

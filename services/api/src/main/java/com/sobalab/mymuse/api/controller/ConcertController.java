@@ -18,18 +18,6 @@ public class ConcertController {
         this.concertService = concertService;
     }
 
-    // @GetMapping
-    // public CursorResponse<ConcertDto> searchConcerts(
-    // @RequestParam(required = false) String q,
-    // @RequestParam(required = false) String region,
-    // @RequestParam(required = false) String sort,
-    // @RequestParam(required = false) String cursor,
-    // @RequestParam(required = false) Integer limit) {
-    // List<ConcertDto> items = concertService.searchConcerts(q, region, sort,
-    // cursor, limit);
-    // return new CursorResponse<>(items, null, false);
-    // }
-
     @GetMapping("/{concertId}")
     public ConcertDto getConcert(@PathVariable String concertId) {
         return concertService.getConcert(concertId);

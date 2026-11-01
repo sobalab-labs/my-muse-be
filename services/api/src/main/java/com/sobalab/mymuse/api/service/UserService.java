@@ -2,6 +2,7 @@ package com.sobalab.mymuse.api.service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,20 +57,20 @@ public class UserService {
         return Collections.emptyList();
     }
 
-    public void followArtist(String artistId) {
+    public void followArtist(UUID artistId) {
     }
 
-    public void unfollowArtist(String artistId) {
+    public void unfollowArtist(UUID artistId) {
     }
 
     public List<BookmarkedConcertDto> getBookmarkedConcerts() {
         return Collections.emptyList();
     }
 
-    public void bookmarkConcert(String concertId) {
+    public void bookmarkConcert(UUID concertId) {
     }
 
-    public void unbookmarkConcert(String concertId) {
+    public void unbookmarkConcert(UUID concertId) {
     }
 
     public List<ConcertDto> getFeed(String view, String month, String sort, String cursor, Integer limit) {
@@ -83,6 +84,6 @@ public class UserService {
     public void updateNotificationPreferences(NotificationPreferencesDto subscription) {
     }
 
-    public void completeOnboarding(List<String> followedArtistIds) {
+    public void completeOnboarding(List<UUID> followedArtistIds) {
     }
 }

@@ -42,7 +42,7 @@
 - `image_url`: string (NULLABLE)
 - `created_at`: timestamp
 
-### ArtistSNS
+### ArtistLink
 - `id`: UUID (PK)
 - `artist_id`: UUID (FK -> Artist.id)
 - `platform`: enum ('instagram', 'youtube', 'tiktok', 'twitter', 'official')
@@ -96,7 +96,7 @@
 - **User** 1:N **UserFollowedArtist** N:1 **Artist**
 - **User** 1:N **UserLikeConcert** N:1 **Concert**
 - **User** 1:1 **NotificationPreferences**
-- **Artist** 1:N **ArtistSNS**
+- **Artist** 1:N **ArtistLink**
 - **Artist** 1:N **ConcertArtist** N:1 **Concert**
 - **Venue** 1:N **Concert**
 

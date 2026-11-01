@@ -22,7 +22,7 @@ This document defines the data invariantsâ€”the immutable rules and constraintsâ
 ## 3. Relational & Business Invariants
 
 ### 3.1 Referential Integrity
-- **Foreign Keys**: All foreign keys (e.g., `Concert.venue_id`, `ArtistSNS.artist_id`, `UserFollowedArtist.user_id`) must have `NOT NULL` constraints where applicable and implement `ON DELETE CASCADE` or `ON DELETE RESTRICT` based on ownership rules.
+- **Foreign Keys**: All foreign keys (e.g., `Concert.venue_id`, `ArtistLink.artist_id`, `UserFollowedArtist.user_id`) must have `NOT NULL` constraints where applicable and implement `ON DELETE CASCADE` or `ON DELETE RESTRICT` based on ownership rules.
 - **Concert-Artist Binding**: The `ConcertArtist` junction table must have a composite `PRIMARY KEY (concert_id, artist_id)` and foreign keys referencing `Concert.id` and `Artist.id`.
 
 ### 3.2 Cardinality & Uniqueness

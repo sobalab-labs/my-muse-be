@@ -18,15 +18,6 @@ public class ArtistController {
         this.artistService = artistService;
     }
 
-    // @GetMapping
-    // public CursorResponse<ArtistDto> searchArtists(
-    // @RequestParam(required = false) String q,
-    // @RequestParam(required = false) String cursor,
-    // @RequestParam(required = false) Integer limit) {
-    // List<ArtistDto> items = artistService.searchArtists(q, cursor, limit);
-    // return new CursorResponse<>(items, null, false);
-    // }
-
     @GetMapping("/{artistId}")
     public ArtistDto getArtist(@PathVariable String artistId) {
         return artistService.getArtist(artistId);

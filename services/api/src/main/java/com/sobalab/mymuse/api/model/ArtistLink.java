@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "artist_sns")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ArtistSNS extends BaseEntity {
+public class ArtistLink extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artist_id", nullable = false)

@@ -43,7 +43,7 @@ CREATE TABLE artists (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- ArtistSNS
+-- ArtistLink
 CREATE TABLE artist_sns (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     artist_id UUID NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
