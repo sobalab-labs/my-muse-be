@@ -1,0 +1,12 @@
+spring:
+    datasource:
+        url: jdbc:postgresql://localhost:5432/mymuse
+        username: mymuse
+        password: mymuse-local
+    security:
+        oauth2:
+            client:
+                registration:
+                    google:
+                        client-id: ${GOOGLE_CLIENT_ID:local-development-client}
+                        client-secret: ${GOOGLE_CLIENT_SECRET:local-development-secret}
