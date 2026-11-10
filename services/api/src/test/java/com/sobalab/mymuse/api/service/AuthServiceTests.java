@@ -15,8 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 import com.sobalab.mymuse.api.model.NotificationPreferences;
 import com.sobalab.mymuse.api.model.User;
 import com.sobalab.mymuse.api.model.UserIdentity;
@@ -128,21 +126,4 @@ class AuthServiceTests {
         verifyNoInteractions(notificationPreferencesRepository);
     }
 
-    @ParameterizedTest
-    @EnumSource(OAuthProvider.class)
-    void bareCodeNeverProducesAnAuthenticationToken(OAuthProvider provider) {
-        assertThatThrownBy(() -> authService.loginOAuth(provider, "untrusted-code"))
-                .isInstanceOfSatisfying(ResponseStatusException.class,
-                        ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
-        verifyNoInteractions(userRepository, userIdentityRepository, notificationPreferencesRepository);
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {" "})
-    void missingLoginInputsAreRejected(String value) {
-        assertThatThrownBy(() -> authService.loginOAuth(null, "code")).isInstanceOf(ResponseStatusException.class);
-        assertThatThrownBy(() -> authService.loginOAuth(OAuthProvider.GOOGLE, value)).isInstanceOf(ResponseStatusException.class);
-        verifyNoInteractions(userRepository, userIdentityRepository, notificationPreferencesRepository);
-    }
 }

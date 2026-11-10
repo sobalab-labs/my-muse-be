@@ -1,7 +1,5 @@
 package com.sobalab.mymuse.api.service;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,13 +53,4 @@ public class AuthService {
                 });
     }
 
-    public String loginOAuth(OAuthProvider provider, String code) {
-        if (provider == null || code == null || code.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Provider and code are required");
-        }
-        // A bare code does not carry the saved authorization request (state/nonce/PKCE).
-        // The configured Spring Security OAuth2 filters own code exchange and session creation.
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Start OAuth login at /oauth2/authorization/" + provider.getValue());
-    }
 }

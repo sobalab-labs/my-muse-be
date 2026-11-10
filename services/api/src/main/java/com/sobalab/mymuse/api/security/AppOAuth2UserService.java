@@ -37,14 +37,15 @@ public class AppOAuth2UserService implements OAuth2UserService<OAuth2UserRequest
             String nickname = null;
 
             if (kakaoAccount != null) {
-                email = (String) kakaoAccount.get("email");
-                Boolean isEmailVerified = (Boolean) kakaoAccount.get("is_email_verified");
-                if (isEmailVerified != null) {
-                    emailVerified = isEmailVerified;
+                if (kakaoAccount.get("email") instanceof String value) {
+                    email = value;
                 }
-                Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-                if (profile != null) {
-                    nickname = (String) profile.get("nickname");
+                if (kakaoAccount.get("is_email_verified") instanceof Boolean value) {
+                    emailVerified = value;
+                }
+                if (kakaoAccount.get("profile") instanceof Map<?, ?> profile
+                        && profile.get("nickname") instanceof String value) {
+                    nickname = value;
                 }
             }
 

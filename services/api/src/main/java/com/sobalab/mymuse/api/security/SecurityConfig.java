@@ -2,6 +2,7 @@ package com.sobalab.mymuse.api.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,6 +34,8 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/actuator/health", "/oauth2/**", "/login/**", "/v3/api-docs.yaml").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/search/**", "/feed/**", "/artists/**", "/concerts/**")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(o -> o
                         .userInfoEndpoint(u -> u
@@ -44,7 +47,7 @@ public class SecurityConfig {
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                         PathPatternRequestMatcher.withDefaults().matcher("/users/**")))
                 .csrf(csrf -> csrf.spa())
-                .logout(l -> l.logoutUrl("/api/logout")
+                .logout(l -> l.logoutUrl("/logout")
                         .logoutSuccessHandler((req, res, auth) -> res.setStatus(204)))
                 .build();
     }
