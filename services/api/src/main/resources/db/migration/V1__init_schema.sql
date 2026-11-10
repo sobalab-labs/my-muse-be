@@ -22,9 +22,9 @@ CREATE TABLE users (
     email_verified BOOLEAN DEFAULT FALSE NOT NULL,
     name VARCHAR(255) NOT NULL,
     preferred_locale locale NOT NULL,
-    onboarding_completed BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    onboarding_completed BOOLEAN DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- User Identities
@@ -33,7 +33,7 @@ CREATE TABLE user_identities (
     user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     provider oauth_provider NOT NULL,
     provider_subject VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     UNIQUE (provider, provider_subject)
 );
 
@@ -44,8 +44,8 @@ CREATE TABLE artists (
     genre VARCHAR(255),
     nation country_code,
     image_url TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- ArtistLink
@@ -54,8 +54,8 @@ CREATE TABLE artist_link (
     artist_id UUID NOT NULL REFERENCES artists (id) ON DELETE CASCADE,
     platform link_platform NOT NULL,
     url TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- Venues
@@ -64,7 +64,7 @@ CREATE TABLE venues (
     name VARCHAR(255) NOT NULL,
     type venue_type DEFAULT 'other',
     nation country_code,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- Concerts
@@ -76,8 +76,8 @@ CREATE TABLE concerts (
     duration_minutes INTEGER,
     ticketing_url TEXT,
     official_announcement_url TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- Junction Tables
@@ -103,11 +103,11 @@ CREATE TABLE user_followed_artist (
 CREATE TABLE notification_preferences (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     user_id UUID NOT NULL UNIQUE REFERENCES users (id) ON DELETE CASCADE,
-    channel_email_enabled BOOLEAN DEFAULT FALSE,
-    channel_kakao_enabled BOOLEAN DEFAULT FALSE,
-    general_weekly_updates BOOLEAN DEFAULT FALSE,
-    artist_new_concert_enabled BOOLEAN DEFAULT FALSE,
-    bookmarked_event_ticket_open_enabled BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    channel_email_enabled BOOLEAN DEFAULT FALSE NOT NULL,
+    channel_kakao_enabled BOOLEAN DEFAULT FALSE NOT NULL,
+    general_weekly_updates BOOLEAN DEFAULT FALSE NOT NULL,
+    artist_new_concert_enabled BOOLEAN DEFAULT FALSE NOT NULL,
+    bookmarked_event_ticket_open_enabled BOOLEAN DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
