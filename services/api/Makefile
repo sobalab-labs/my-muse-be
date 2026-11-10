@@ -10,10 +10,13 @@ endif
 
 COMPOSE := docker compose -f compose.yaml
 
-.PHONY: run db-up db-down db-logs
+.PHONY: run generate-openapi db-up db-down db-logs
 
 run: db-up
 	$(GRADLE) bootRun --args="--spring.profiles.active=local"
+
+generate-openapi: db-up
+	node scripts/generate-openapi.mjs
 
 db-up:
 	$(COMPOSE) up --detach --wait --wait-timeout 120 postgres
