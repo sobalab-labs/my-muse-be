@@ -9,12 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.sobalab.mymuse.api.model.UserLikeConcert;
+import com.sobalab.mymuse.api.model.UserBookmarkConcert;
 
 @Repository
-public interface UserLikeConcertRepository extends JpaRepository<UserLikeConcert, UserLikeConcert.Id> {
+public interface UserBookmarkConcertRepository extends JpaRepository<UserBookmarkConcert, UserBookmarkConcert.Id> {
 
-    List<UserLikeConcert> findByUserId(UUID userId);
+    List<UserBookmarkConcert> findByUserId(UUID userId);
 
     boolean existsByUserIdAndConcertId(UUID userId, UUID concertId);
 
@@ -27,6 +27,6 @@ public interface UserLikeConcertRepository extends JpaRepository<UserLikeConcert
     int insertIfAbsent(@Param("userId") UUID userId, @Param("concertId") UUID concertId);
 
     @Modifying
-    @Query("DELETE FROM UserLikeConcert l WHERE l.user.id = :userId AND l.concert.id = :concertId")
+    @Query("DELETE FROM UserBookmarkConcert l WHERE l.user.id = :userId AND l.concert.id = :concertId")
     void deleteByUserIdAndConcertId(@Param("userId") UUID userId, @Param("concertId") UUID concertId);
 }

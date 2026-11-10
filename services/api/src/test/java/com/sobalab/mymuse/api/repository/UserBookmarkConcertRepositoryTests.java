@@ -8,12 +8,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.sobalab.mymuse.api.model.UserLikeConcert;
+import com.sobalab.mymuse.api.model.UserBookmarkConcert;
 import com.sobalab.mymuse.api.model.enums.CountryCode;
 
-class UserLikeConcertRepositoryTests extends RepositoryQueryTestSupport {
+class UserBookmarkConcertRepositoryTests extends RepositoryQueryTestSupport {
     @Autowired
-    UserLikeConcertRepository repository;
+    UserBookmarkConcertRepository repository;
 
     @Test
     void insertIfAbsentReturnsAffectedRowsAndDeduplicatesOnlyTheExactPair() {
@@ -29,10 +29,11 @@ class UserLikeConcertRepositoryTests extends RepositoryQueryTestSupport {
         assertThat(repository.insertIfAbsent(other.getId(), first.getId())).isOne();
         assertThat(repository.insertIfAbsent(user.getId(), second.getId())).isOne();
         flushAndClear();
-        assertThat(em.createQuery("select l.id from UserLikeConcert l", UserLikeConcert.Id.class).getResultList())
-                .containsExactlyInAnyOrder(new UserLikeConcert.Id(user.getId(), first.getId()),
-                        new UserLikeConcert.Id(other.getId(), first.getId()),
-                        new UserLikeConcert.Id(user.getId(), second.getId()));
+        assertThat(
+                em.createQuery("select l.id from UserBookmarkConcert l", UserBookmarkConcert.Id.class).getResultList())
+                .containsExactlyInAnyOrder(new UserBookmarkConcert.Id(user.getId(), first.getId()),
+                        new UserBookmarkConcert.Id(other.getId(), first.getId()),
+                        new UserBookmarkConcert.Id(user.getId(), second.getId()));
     }
 
     @Test
@@ -42,9 +43,9 @@ class UserLikeConcertRepositoryTests extends RepositoryQueryTestSupport {
         var venue = venue(CountryCode.KR);
         var first = concert("First", venue, LocalDateTime.of(2030, 1, 1, 18, 0));
         var second = concert("Second", venue, first.getDate().plusDays(1));
-        persist(UserLikeConcert.of(user, first));
-        persist(UserLikeConcert.of(other, first));
-        persist(UserLikeConcert.of(user, second));
+        persist(UserBookmarkConcert.of(user, first));
+        persist(UserBookmarkConcert.of(other, first));
+        persist(UserBookmarkConcert.of(user, second));
         flushAndClear();
 
         repository.deleteByUserIdAndConcertId(user.getId(), first.getId());
@@ -53,8 +54,9 @@ class UserLikeConcertRepositoryTests extends RepositoryQueryTestSupport {
         repository.deleteByUserIdAndConcertId(user.getId(), UUID.randomUUID());
         flushAndClear();
 
-        assertThat(em.createQuery("select l.id from UserLikeConcert l", UserLikeConcert.Id.class).getResultList())
-                .containsExactlyInAnyOrder(new UserLikeConcert.Id(other.getId(), first.getId()),
-                        new UserLikeConcert.Id(user.getId(), second.getId()));
+        assertThat(
+                em.createQuery("select l.id from UserBookmarkConcert l", UserBookmarkConcert.Id.class).getResultList())
+                .containsExactlyInAnyOrder(new UserBookmarkConcert.Id(other.getId(), first.getId()),
+                        new UserBookmarkConcert.Id(user.getId(), second.getId()));
     }
 }

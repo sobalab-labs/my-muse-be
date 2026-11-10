@@ -22,7 +22,7 @@ import lombok.Setter;
 @Table(name = "user_like_concert")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserLikeConcert {
+public class UserBookmarkConcert {
 
     @Embeddable
     @Getter
@@ -48,8 +48,8 @@ public class UserLikeConcert {
     @JoinColumn(name = "concert_id", nullable = false)
     private Concert concert;
 
-    public static UserLikeConcert of(User user, Concert concert) {
-        UserLikeConcert like = new UserLikeConcert();
+    public static UserBookmarkConcert of(User user, Concert concert) {
+        UserBookmarkConcert like = new UserBookmarkConcert();
         like.id = new Id(user.getId(), concert.getId());
         like.user = user;
         like.concert = concert;
