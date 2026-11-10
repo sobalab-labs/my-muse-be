@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "venues")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Venue extends BaseEntity {
+public class Venue extends AuditedEntity {
 
     @Column(nullable = false)
     private String name;

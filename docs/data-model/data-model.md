@@ -57,6 +57,7 @@
 - `type`: enum ('hall', 'dome', 'stadium', 'other') (DEFAULT: 'other')
 - `nation`: enum ('JP', 'KR') (NULLABLE)
 - `created_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
+- `updated_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
 
 ### Concert
 - `id`: UUID (PK, NOT NULL)
