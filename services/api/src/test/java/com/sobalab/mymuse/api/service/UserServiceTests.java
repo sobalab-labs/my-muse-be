@@ -17,24 +17,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.sobalab.mymuse.api.dto.ConcertDto;
 import com.sobalab.mymuse.api.dto.NotificationPreferencesDto;
 import com.sobalab.mymuse.api.dto.UserDto;
 import com.sobalab.mymuse.api.model.Artist;
 import com.sobalab.mymuse.api.model.Concert;
 import com.sobalab.mymuse.api.model.NotificationPreferences;
 import com.sobalab.mymuse.api.model.User;
-import com.sobalab.mymuse.api.model.UserLikeConcert;
+import com.sobalab.mymuse.api.model.UserBookmarkConcert;
 import com.sobalab.mymuse.api.model.enums.FeedSort;
 import com.sobalab.mymuse.api.model.enums.FeedView;
 import com.sobalab.mymuse.api.repository.ArtistRepository;
 import com.sobalab.mymuse.api.repository.ConcertRepository;
 import com.sobalab.mymuse.api.repository.NotificationPreferencesRepository;
+import com.sobalab.mymuse.api.repository.UserBookmarkConcertRepository;
 import com.sobalab.mymuse.api.repository.UserFollowedArtistRepository;
-import com.sobalab.mymuse.api.repository.UserLikeConcertRepository;
 import com.sobalab.mymuse.api.repository.UserRepository;
 import com.sobalab.mymuse.api.security.AppUserPrincipal;
 
@@ -50,7 +53,7 @@ class UserServiceTests {
     @Mock
     private UserFollowedArtistRepository userFollowedArtistRepository;
     @Mock
-    private UserLikeConcertRepository userLikeConcertRepository;
+    private UserBookmarkConcertRepository userBookmarkConcertRepository;
     @Mock
     private NotificationPreferencesRepository notificationPreferencesRepository;
 
@@ -93,7 +96,7 @@ class UserServiceTests {
         verify(concertRepository).findFollowedArtistsFeed(org.mockito.ArgumentMatchers.eq(userId),
                 org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.isNull(),
                 org.mockito.ArgumentMatchers.eq(date), org.mockito.ArgumentMatchers.eq(id),
-                org.mockito.ArgumentMatchers.argThat(limit -> limit.max() == 10));
+                org.mockito.ArgumentMatchers.argThat(limit -> limit.max() == 11));
     }
 
     @Test
@@ -109,7 +112,26 @@ class UserServiceTests {
         verify(concertRepository).findFollowedArtistsFeedAfterAnnouncement(org.mockito.ArgumentMatchers.eq(userId),
                 org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.isNull(),
                 org.mockito.ArgumentMatchers.eq(created), org.mockito.ArgumentMatchers.eq(id),
-                org.mockito.ArgumentMatchers.argThat(limit -> limit.max() == 10));
+                org.mockito.ArgumentMatchers.argThat(limit -> limit.max() == 11));
+    }
+
+    @Test
+    void followedFeedTrimsTheLookaheadConcert() {
+        var first = mock(Concert.class);
+        var second = mock(Concert.class);
+        var extra = mock(Concert.class);
+        when(first.getId()).thenReturn(UUID.randomUUID());
+        when(second.getId()).thenReturn(UUID.randomUUID());
+        when(first.getTitle()).thenReturn("First");
+        when(second.getTitle()).thenReturn("Second");
+        when(concertRepository.findFollowedArtistsFeed(any(), any(), any(), any(), any(), any()))
+                .thenReturn(java.util.List.of(first, second, extra));
+
+        var result = userService.getFeed(FeedView.LIST, null, FeedSort.DDAY, null, 2);
+
+        assertThat(result.items()).extracting(ConcertDto::title).containsExactly("First", "Second");
+        assertThat(result.nextCursor()).isEqualTo(second.getId().toString());
+        assertThat(result.hasNext()).isTrue();
     }
 
     @Test
@@ -175,8 +197,10 @@ class UserServiceTests {
         when(artistRepository.findById(artistId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.followArtist(artistId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Artist not found");
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                    assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(exception.getReason()).contains("Artist not found");
+                });
     }
 
     @Test
@@ -192,12 +216,9 @@ class UserServiceTests {
         Concert concert = mock(Concert.class);
         when(concert.getId()).thenReturn(concertId);
         when(concertRepository.findById(concertId)).thenReturn(Optional.of(concert));
-        when(userLikeConcertRepository.existsByUserIdAndConcertId(userId, concertId)).thenReturn(false);
-        when(userRepository.getReferenceById(userId)).thenReturn(user);
-
         userService.bookmarkConcert(concertId);
 
-        verify(userLikeConcertRepository).save(any(UserLikeConcert.class));
+        verify(userBookmarkConcertRepository).insertIfAbsent(userId, concertId);
     }
 
     @Test
@@ -206,15 +227,54 @@ class UserServiceTests {
         when(concertRepository.findById(concertId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.bookmarkConcert(concertId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Concert not found");
+                .isInstanceOfSatisfying(ResponseStatusException.class, exception -> {
+                    assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(exception.getReason()).contains("Concert not found");
+                });
+    }
+
+    @Test
+    void followedFeedRejectsNonPositiveLimits() {
+        for (int limit : java.util.List.of(0, -1)) {
+            assertThatThrownBy(() -> userService.getFeed(FeedView.LIST, null, FeedSort.DDAY, null, limit))
+                    .isInstanceOfSatisfying(ResponseStatusException.class,
+                            exception -> assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
+        }
+    }
+
+    @Test
+    void calendarFeedRequiresAValidMonth() {
+        for (String month : java.util.Arrays.asList(null, "2026-13", "not-a-month")) {
+            assertThatThrownBy(() -> userService.getFeed(FeedView.CALENDAR, month, FeedSort.DDAY, null, 20))
+                    .isInstanceOfSatisfying(ResponseStatusException.class,
+                            exception -> assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
+        }
     }
 
     @Test
     void unbookmarkConcert_Success() {
         UUID concertId = UUID.randomUUID();
         userService.unbookmarkConcert(concertId);
-        verify(userLikeConcertRepository).deleteByUserIdAndConcertId(userId, concertId);
+        verify(userBookmarkConcertRepository).deleteByUserIdAndConcertId(userId, concertId);
+    }
+
+    @Test
+    void bookmarkedConcertResponseContainsOnlyPersistedBookmarkIdentity() {
+        UUID concertId = UUID.randomUUID();
+        Concert concert = mock(Concert.class);
+        when(concert.getId()).thenReturn(concertId);
+        ReflectionTestUtils.setField(concert, "id", concertId);
+        var bookmark = UserBookmarkConcert.of(user, concert);
+        when(userBookmarkConcertRepository.findByUserId(userId)).thenReturn(java.util.List.of(bookmark));
+
+        var response = userService.getBookmarkedConcerts().getFirst();
+        var json = new com.fasterxml.jackson.databind.ObjectMapper()
+                .registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
+                .valueToTree(response);
+
+        assertThat(response.userId()).isEqualTo(userId);
+        assertThat(response.concertId()).isEqualTo(concertId);
+        assertThat(json.fieldNames()).toIterable().containsExactlyInAnyOrder("userId", "concertId");
     }
 
     @Test

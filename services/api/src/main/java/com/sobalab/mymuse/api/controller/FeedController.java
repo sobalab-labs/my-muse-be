@@ -1,7 +1,5 @@
 package com.sobalab.mymuse.api.controller;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,8 +30,6 @@ public class FeedController {
             @RequestParam(required = false) FeedSort sort,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) Integer limit) {
-        List<ConcertDto> items = feedService.getTrendingFeed(
-                view, month, nation, sort, cursor, limit);
-        return new CursorResponse<>(items, null, false);
+        return feedService.getTrendingFeed(view, month, nation, sort, cursor, limit);
     }
 }

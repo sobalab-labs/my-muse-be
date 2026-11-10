@@ -2,6 +2,8 @@ package com.sobalab.mymuse.api.controller;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -15,6 +17,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.sobalab.mymuse.api.model.enums.CountryCode;
+import com.sobalab.mymuse.api.dto.ConcertDto;
+import com.sobalab.mymuse.api.dto.CursorResponse;
 import com.sobalab.mymuse.api.model.enums.FeedSort;
 import com.sobalab.mymuse.api.model.enums.FeedView;
 import com.sobalab.mymuse.api.security.AppOAuth2UserService;
@@ -48,6 +52,19 @@ public class FeedControllerTests {
                 .param("limit", "20"))
                 .andExpect(status().isOk());
         verify(feedService).getTrendingFeed(FeedView.LIST, "2026-11", CountryCode.KR, FeedSort.DDAY, "abc", 20);
+    }
+
+    @Test
+    void getTrendingFeed_ShouldReturnServiceCursorMetadata() throws Exception {
+        var item = new ConcertDto("concert-2", "Live", null, null, null, null, null);
+        when(feedService.getTrendingFeed(null, null, null, null, null, 2))
+                .thenReturn(new CursorResponse<>(java.util.List.of(item), "concert-2", true));
+
+        mockMvc.perform(get("/feed/trending").param("limit", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].id").value("concert-2"))
+                .andExpect(jsonPath("$.nextCursor").value("concert-2"))
+                .andExpect(jsonPath("$.hasNext").value(true));
     }
 
     @Test

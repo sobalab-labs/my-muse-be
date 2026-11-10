@@ -8,12 +8,42 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.sobalab.mymuse.api.model.NotificationPreferences;
 
 class NotificationPreferencesRepositoryTests extends RepositoryQueryTestSupport {
     @Autowired
     NotificationPreferencesRepository repository;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    @Test
+    void requiredEntityColumnsAreNotNullableInTheDatabaseSchema() {
+        var requiredColumns = java.util.List.of(
+                "users.onboarding_completed", "users.created_at", "users.updated_at",
+                "user_identities.created_at",
+                "artists.created_at", "artists.updated_at",
+                "artist_link.created_at", "artist_link.updated_at",
+                "venues.created_at",
+                "concerts.created_at", "concerts.updated_at",
+                "notification_preferences.channel_email_enabled",
+                "notification_preferences.channel_kakao_enabled",
+                "notification_preferences.general_weekly_updates",
+                "notification_preferences.artist_new_concert_enabled",
+                "notification_preferences.bookmarked_event_ticket_open_enabled",
+                "notification_preferences.created_at", "notification_preferences.updated_at");
+
+        for (String qualifiedColumn : requiredColumns) {
+            String[] parts = qualifiedColumn.split("\\.");
+            String nullable = jdbcTemplate.queryForObject(
+                    "select is_nullable from information_schema.columns "
+                            + "where table_schema = current_schema() and table_name = ? and column_name = ?",
+                    String.class, parts[0], parts[1]);
+            assertThat(nullable).as(qualifiedColumn).isEqualTo("NO");
+        }
+    }
 
     @ParameterizedTest
     @CsvSource({ "true,false,true,false,true", "false,true,false,true,false" })

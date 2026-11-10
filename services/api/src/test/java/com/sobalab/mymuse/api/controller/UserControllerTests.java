@@ -2,9 +2,11 @@ package com.sobalab.mymuse.api.controller;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,6 +22,8 @@ import com.sobalab.mymuse.api.model.enums.FeedSort;
 import com.sobalab.mymuse.api.model.enums.FeedView;
 import com.sobalab.mymuse.api.security.AppOAuth2UserService;
 import com.sobalab.mymuse.api.security.AppOidcUserService;
+import com.sobalab.mymuse.api.dto.ConcertDto;
+import com.sobalab.mymuse.api.dto.CursorResponse;
 import com.sobalab.mymuse.api.service.UserService;
 
 @WebMvcTest(UserController.class)
@@ -41,6 +45,19 @@ public class UserControllerTests {
         mockMvc.perform(get("/users/me/feed").param("view", view).param("sort", sort))
                 .andExpect(status().isOk());
         verify(userService).getFeed(FeedView.valueOf(view.toUpperCase(java.util.Locale.ROOT)), null, FeedSort.valueOf(sort.toUpperCase(java.util.Locale.ROOT)), null, null);
+    }
+
+    @Test
+    void getFeed_ShouldReturnServiceCursorMetadata() throws Exception {
+        var item = new ConcertDto("concert-2", "Live", null, null, null, null, null);
+        when(userService.getFeed(null, null, null, null, 2))
+                .thenReturn(new CursorResponse<>(java.util.List.of(item), "concert-2", true));
+
+        mockMvc.perform(get("/users/me/feed").param("limit", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].id").value("concert-2"))
+                .andExpect(jsonPath("$.nextCursor").value("concert-2"))
+                .andExpect(jsonPath("$.hasNext").value(true));
     }
 
     @ParameterizedTest

@@ -41,37 +41,39 @@ class FeedServiceTests {
     void defaultRequestDelegatesTypedFutureRangeAndDefaultPageSize() {
         when(concertService.getTrendingFeed(any(), any(), any(), any(), any(), anyInt())).thenReturn(List.of());
         LocalDateTime before = LocalDateTime.now();
-        assertThat(feedService.getTrendingFeed(null, null, null, null, null, null)).isEmpty();
+        assertThat(feedService.getTrendingFeed(null, null, null, null, null, null).items()).isEmpty();
         LocalDateTime after = LocalDateTime.now();
         var start = ArgumentCaptor.forClass(LocalDateTime.class);
         verify(concertService).getTrendingFeed(isNull(), start.capture(), isNull(), eq(FeedSort.DDAY), isNull(),
-                eq(20));
+                eq(21));
         assertThat(start.getValue()).isBetween(before, after);
     }
 
     @Test
     void calendarUsesExclusiveEndOfLeapMonth() {
         UUID cursor = UUID.randomUUID();
+        when(concertService.getTrendingFeed(any(), any(), any(), any(), any(), anyInt())).thenReturn(List.of());
         feedService.getTrendingFeed(FeedView.CALENDAR, "2400-02", CountryCode.JP, FeedSort.RECENTLY_ANNOUNCED, cursor.toString(), 100);
         verify(concertService).getTrendingFeed(eq(CountryCode.JP), eq(LocalDateTime.of(2400, 2, 1, 0, 0)),
-                eq(LocalDateTime.of(2400, 3, 1, 0, 0)), eq(FeedSort.RECENTLY_ANNOUNCED), eq(cursor), eq(100));
+                eq(LocalDateTime.of(2400, 3, 1, 0, 0)), eq(FeedSort.RECENTLY_ANNOUNCED), eq(cursor), eq(101));
     }
 
     @Test
     void currentMonthStartsNow() {
         LocalDateTime before = LocalDateTime.now();
         var month = java.time.YearMonth.from(before);
+        when(concertService.getTrendingFeed(any(), any(), any(), any(), any(), anyInt())).thenReturn(List.of());
         feedService.getTrendingFeed(FeedView.CALENDAR, month.toString(), null, null, null, 20);
         LocalDateTime after = LocalDateTime.now();
         var start = ArgumentCaptor.forClass(LocalDateTime.class);
         verify(concertService).getTrendingFeed(isNull(), start.capture(),
-                eq(month.plusMonths(1).atDay(1).atStartOfDay()), eq(FeedSort.DDAY), isNull(), eq(20));
+                eq(month.plusMonths(1).atDay(1).atStartOfDay()), eq(FeedSort.DDAY), isNull(), eq(21));
         assertThat(start.getValue()).isBetween(before, after);
     }
 
     @Test
     void pastCalendarReturnsEmptyWithoutCallingConcertService() {
-        assertThat(feedService.getTrendingFeed(FeedView.CALENDAR, "2000-01", null, null, null, 20)).isEmpty();
+        assertThat(feedService.getTrendingFeed(FeedView.CALENDAR, "2000-01", null, null, null, 20).items()).isEmpty();
         verifyNoInteractions(concertService);
     }
 
@@ -89,9 +91,17 @@ class FeedServiceTests {
 
     @Test
     void resultOrderAndContentArePreserved() {
-        List<ConcertDto> concerts = List.of(new ConcertDto("first", "Live", null, null, null, null, null));
+        List<ConcertDto> concerts = List.of(
+                new ConcertDto("first", "Live", null, null, null, null, null),
+                new ConcertDto("second", "Live", null, null, null, null, null),
+                new ConcertDto("third", "Live", null, null, null, null, null));
         when(concertService.getTrendingFeed(any(), any(), any(), any(), any(), anyInt())).thenReturn(concerts);
-        assertThat(feedService.getTrendingFeed(null, null, null, null, null, 20)).isSameAs(concerts);
+        var response = feedService.getTrendingFeed(null, null, null, null, null, 2);
+        assertThat(response.items()).extracting(ConcertDto::id)
+                .containsExactly("first", "second");
+        assertThat(response.nextCursor()).isEqualTo("second");
+        assertThat(response.hasNext()).isTrue();
+        verify(concertService).getTrendingFeed(isNull(), any(), isNull(), eq(FeedSort.DDAY), isNull(), eq(3));
     }
 
     @Test

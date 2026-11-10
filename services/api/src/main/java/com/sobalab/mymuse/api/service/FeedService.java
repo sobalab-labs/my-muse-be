@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.sobalab.mymuse.api.dto.ConcertDto;
+import com.sobalab.mymuse.api.dto.CursorResponse;
 import com.sobalab.mymuse.api.model.enums.CountryCode;
 import com.sobalab.mymuse.api.model.enums.FeedSort;
 import com.sobalab.mymuse.api.model.enums.FeedView;
@@ -26,7 +27,7 @@ public class FeedService {
      * Applies feed defaults and range rules, then delegates a typed query to the concert
      * service.
      */
-    public List<ConcertDto> getTrendingFeed(FeedView view, String month, CountryCode nation, FeedSort sort, String cursor,
+    public CursorResponse<ConcertDto> getTrendingFeed(FeedView view, String month, CountryCode nation, FeedSort sort, String cursor,
             Integer limit) {
         int pageSize = limit == null ? 20 : limit;
         if (pageSize < 1 || pageSize > 100) {
@@ -64,9 +65,14 @@ public class FeedService {
         }
 
         if (endDate != null && !startDate.isBefore(endDate)) {
-            return List.of();
+            return new CursorResponse<>(List.of(), null, false);
         }
-        return concertService.getTrendingFeed(nation, startDate, endDate, sorting, cursorId, pageSize);
+        List<ConcertDto> rows = concertService.getTrendingFeed(nation, startDate, endDate, sorting, cursorId,
+                pageSize + 1);
+        boolean hasNext = rows.size() > pageSize;
+        List<ConcertDto> items = hasNext ? rows.subList(0, pageSize) : rows;
+        String nextCursor = hasNext ? items.get(items.size() - 1).id() : null;
+        return new CursorResponse<>(items, nextCursor, hasNext);
     }
 
     private static ResponseStatusException badRequest(String reason) {

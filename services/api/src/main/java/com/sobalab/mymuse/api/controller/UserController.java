@@ -91,9 +91,7 @@ public class UserController {
             @RequestParam(required = false) FeedSort sort,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) Integer limit) {
-        List<ConcertDto> items = userService.getFeed(
-                view, month, sort, cursor, limit);
-        return new CursorResponse<>(items, null, false);
+        return userService.getFeed(view, month, sort, cursor, limit);
     }
 
     @GetMapping("/notification-preferences")
