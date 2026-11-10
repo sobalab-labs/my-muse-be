@@ -6,12 +6,12 @@ This document outlines the critical transaction scenarios for the Artist & Conce
 ## 2. Transaction Flow Definitions
 
 ### 2.1 User Onboarding (Registration)
-*   **Trigger**: User signs in via OAuth (`/auth/login`) for the first time.
+*   **Trigger**: User completes the configured OAuth2 sign-in flow through `/oauth2/authorization/{registrationId}` for the first time.
 *   **Logical Steps**:
-    1.  Create `User` entry (if not exists) based on `oauthProvider` and `oauthId`.
-    2.  Initialize `NotificationPreferences` for the `user_id`.
+    1.  Look up `UserIdentity` by `(provider, provider_subject)`. If none exists, create a `User` and its `UserIdentity`.
+    2.  Initialize `NotificationPreferences` for the new user's `user_id`.
     3.  *(Optional)* Create `UserFollowedArtist` associations if artists were selected during onboarding (`/users/me/onboarding`).
-*   **Invariants**: `User` uniqueness on `(oauthProvider, oauthId)` must be enforced.
+*   **Invariants**: `UserIdentity` uniqueness on `(provider, provider_subject)` must be enforced.
 
 ### 2.2 Artist Follow/Unfollow
 *   **Trigger**: User initiates follow/unfollow action (`/users/me/followed-artists`).
@@ -43,5 +43,5 @@ This document outlines the critical transaction scenarios for the Artist & Conce
     2.  Cascade/Clean up associated records:
         *   `NotificationPreferences`
         *   `UserFollowedArtist`
-        *   `UserLikeConcert`
+        *   `UserBookmarkConcert`
 *   **Invariants**: All foreign keys must enforce `ON DELETE CASCADE` or ensure proper application-level cleanup to maintain referential integrity.

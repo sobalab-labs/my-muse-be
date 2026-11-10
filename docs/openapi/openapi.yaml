@@ -74,20 +74,6 @@ paths:
       responses:
         "200":
           description: OK
-  /auth/login:
-    post:
-      tags:
-      - auth-controller
-      operationId: login
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LoginRequest"
-        required: true
-      responses:
-        "200":
-          description: OK
   /users/me/notification-preferences:
     get:
       tags:
@@ -181,6 +167,54 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CursorResponseConcertDto"
+  /search:
+    get:
+      tags:
+      - search-controller
+      operationId: search
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: types
+        in: query
+        required: false
+        schema:
+          type: array
+          default:
+          - ARTIST
+          - CONCERT
+          items:
+            type: string
+            enum:
+            - ARTIST
+            - CONCERT
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      - name: artistCursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: concertCursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
   /feed/trending:
     get:
       tags:
@@ -272,94 +306,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ArtistDto"
-  /api/search:
-    get:
-      tags:
-      - search-controller
-      operationId: search
-      parameters:
-      - name: q
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: types
-        in: query
-        required: false
-        schema:
-          type: array
-          default:
-          - ARTIST
-          - CONCERT
-          items:
-            type: string
-            enum:
-            - ARTIST
-            - CONCERT
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 20
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/SearchResponse"
-  /api/search/concerts:
-    get:
-      tags:
-      - search-controller
-      operationId: searchConcerts
-      parameters:
-      - name: cursor
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 20
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CursorResponseConcertDto"
-  /api/search/artists:
-    get:
-      tags:
-      - search-controller
-      operationId: searchArtists
-      parameters:
-      - name: cursor
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 10
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CursorResponseArtistDto"
   /users/me/followed-artists/{artistId}:
     delete:
       tags:
@@ -416,20 +362,6 @@ components:
           format: uuid
       required:
       - concertId
-    LoginRequest:
-      type: object
-      properties:
-        provider:
-          type: string
-          enum:
-          - google
-          - kakao
-        code:
-          type: string
-          minLength: 1
-      required:
-      - code
-      - provider
     ChannelsPatch:
       type: object
       properties:
@@ -541,18 +473,12 @@ components:
     BookmarkedConcertDto:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
         userId:
           type: string
           format: uuid
         concertId:
           type: string
           format: uuid
-        createdAt:
-          type: string
-          format: date-time
     CursorResponseArtistDto:
       type: object
       properties:

@@ -17,83 +17,83 @@
 ## 1. Core Entities (Logical Model)
 
 ### User
-- `id`: UUID (PK)
+- `id`: UUID (PK, NOT NULL)
 - `email`: string (NULLABLE; Kakao or providers may omit or return unverified email)
-- `email_verified`: boolean (DEFAULT: false)
-- `name`: string (Display name)
-- `preferred_locale`: enum ('ko', 'ja') (REQUIRED)
-- `onboarding_completed`: boolean (DEFAULT: false)
-- `created_at`: timestamp
-- `updated_at`: timestamp
+- `email_verified`: boolean (DEFAULT: false, NOT NULL)
+- `name`: string (Display name, NOT NULL)
+- `preferred_locale`: enum ('ko', 'ja') (NOT NULL)
+- `onboarding_completed`: boolean (DEFAULT: false, NOT NULL)
+- `created_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
+- `updated_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
 
 ### UserIdentity
-- `id`: UUID (PK)
-- `user_id`: UUID (FK -> User.id)
-- `provider`: enum ('google', 'kakao')
-- `provider_subject`: string (Google `sub`, or Kakao numeric `id` as string)
-- `created_at`: timestamp
+- `id`: UUID (PK, NOT NULL)
+- `user_id`: UUID (FK -> User.id, NOT NULL)
+- `provider`: enum ('google', 'kakao') (NOT NULL)
+- `provider_subject`: string (Google `sub`, or Kakao numeric `id` as string, NOT NULL)
+- `created_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
 (UNIQUE constraint on `(provider, provider_subject)`)
 
 ### Artist
-- `id`: UUID (PK)
-- `name`: string
+- `id`: UUID (PK, NOT NULL)
+- `name`: string (NOT NULL)
 - `genre`: string (NULLABLE)
-- `nation`: enum ('JP', 'KR')
+- `nation`: enum ('JP', 'KR') (NULLABLE)
 - `image_url`: string (NULLABLE)
-- `created_at`: timestamp
-- `updated_at`: timestamp
+- `created_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
+- `updated_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
 
 ### ArtistLink
-- `id`: UUID (PK)
-- `artist_id`: UUID (FK -> Artist.id)
-- `platform`: enum ('instagram', 'youtube', 'tiktok', 'twitter', 'official')
-- `url`: string
-- `created_at`: timestamp
-- `updated_at`: timestamp
+- `id`: UUID (PK, NOT NULL)
+- `artist_id`: UUID (FK -> Artist.id, NOT NULL)
+- `platform`: enum ('instagram', 'youtube', 'tiktok', 'twitter', 'official') (NOT NULL)
+- `url`: string (NOT NULL)
+- `created_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
+- `updated_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
 
 ### Venue
-- `id`: UUID (PK)
-- `name`: string
+- `id`: UUID (PK, NOT NULL)
+- `name`: string (NOT NULL)
 - `type`: enum ('hall', 'dome', 'stadium', 'other') (DEFAULT: 'other')
-- `nation`: enum ('JP', 'KR')
-- `created_at`: timestamp
+- `nation`: enum ('JP', 'KR') (NULLABLE)
+- `created_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
 
 ### Concert
-- `id`: UUID (PK)
-- `venue_id`: UUID (FK -> Venue.id)
-- `title`: string
-- `date`: datetime
+- `id`: UUID (PK, NOT NULL)
+- `venue_id`: UUID (FK -> Venue.id, NOT NULL)
+- `title`: string (NOT NULL)
+- `date`: datetime (NOT NULL)
 - `duration_minutes`: integer (NULLABLE)
 - `ticketing_url`: string (NULLABLE)
-- `official_announcement_url`: string (REQUIRED)
-- `created_at`: timestamp
-- `updated_at`: timestamp
+- `official_announcement_url`: string (NOT NULL)
+- `created_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
+- `updated_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
 
 ### UserLikeConcert (Junction)
-- `user_id`: UUID (FK -> User.id)
-- `concert_id`: UUID (FK -> Concert.id)
+- `user_id`: UUID (FK -> User.id, NOT NULL)
+- `concert_id`: UUID (FK -> Concert.id, NOT NULL)
 (PK: user_id, concert_id)
 
 ### ConcertArtist (Junction)
-- `concert_id`: UUID (FK -> Concert.id)
-- `artist_id`: UUID (FK -> Artist.id)
+- `concert_id`: UUID (FK -> Concert.id, NOT NULL)
+- `artist_id`: UUID (FK -> Artist.id, NOT NULL)
 (PK: concert_id, artist_id)
 
 ### UserFollowedArtist (Junction)
-- `user_id`: UUID (FK -> User.id)
-- `artist_id`: UUID (FK -> Artist.id)
+- `user_id`: UUID (FK -> User.id, NOT NULL)
+- `artist_id`: UUID (FK -> Artist.id, NOT NULL)
 (PK: user_id, artist_id)
 
 ### NotificationPreferences
-- `id`: UUID (PK)
-- `user_id`: UUID (FK -> User.id)
-- `channel_email_enabled`: boolean (DEFAULT: false)
-- `channel_kakao_enabled`: boolean (DEFAULT: false)
-- `general_weekly_updates`: boolean (DEFAULT: false)
-- `artist_new_concert_enabled`: boolean (DEFAULT: false)
-- `bookmarked_event_ticket_open_enabled`: boolean (DEFAULT: false)
-- `created_at`: timestamp
-- `updated_at`: timestamp
+- `id`: UUID (PK, NOT NULL)
+- `user_id`: UUID (FK -> User.id, NOT NULL, UNIQUE)
+- `channel_email_enabled`: boolean (DEFAULT: false, NOT NULL)
+- `channel_kakao_enabled`: boolean (DEFAULT: false, NOT NULL)
+- `general_weekly_updates`: boolean (DEFAULT: false, NOT NULL)
+- `artist_new_concert_enabled`: boolean (DEFAULT: false, NOT NULL)
+- `bookmarked_event_ticket_open_enabled`: boolean (DEFAULT: false, NOT NULL)
+- `created_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
+- `updated_at`: timestamp (NOT NULL, DEFAULT: CURRENT_TIMESTAMP)
 
 ## 2. Relationships
 
