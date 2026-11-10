@@ -1,0 +1,499 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /users/me/onboarding:
+    post:
+      tags:
+      - user-controller
+      operationId: completeOnboarding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OnboardingRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+  /users/me/followed-artists:
+    get:
+      tags:
+      - user-controller
+      operationId: getFollowedArtists
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArtistDto"
+    post:
+      tags:
+      - user-controller
+      operationId: followArtist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FollowArtistRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+  /users/me/bookmarked-concerts:
+    get:
+      tags:
+      - user-controller
+      operationId: getBookmarkedConcerts
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookmarkedConcertDto"
+    post:
+      tags:
+      - user-controller
+      operationId: bookmarkConcert
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookmarkConcertRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+  /users/me/notification-preferences:
+    get:
+      tags:
+      - user-controller
+      operationId: getNotificationPreferences
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/NotificationPreferencesDto"
+    patch:
+      tags:
+      - user-controller
+      operationId: patchNotificationPreferences
+      requestBody:
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: "#/components/schemas/NotificationPreferencesPatchDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationPreferencesDto"
+  /users/me:
+    get:
+      tags:
+      - user-controller
+      operationId: getMe
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDto"
+    delete:
+      tags:
+      - user-controller
+      operationId: deleteMe
+      responses:
+        "200":
+          description: OK
+  /users/me/feed:
+    get:
+      tags:
+      - user-controller
+      operationId: getFeed
+      parameters:
+      - name: view
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - LIST
+          - CALENDAR
+      - name: month
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - DDAY
+          - RECENTLY_ANNOUNCED
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CursorResponseConcertDto"
+  /search:
+    get:
+      tags:
+      - search-controller
+      operationId: search
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: types
+        in: query
+        required: false
+        schema:
+          type: array
+          default:
+          - ARTIST
+          - CONCERT
+          items:
+            type: string
+            enum:
+            - ARTIST
+            - CONCERT
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      - name: artistCursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: concertCursor
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+  /feed/trending:
+    get:
+      tags:
+      - feed-controller
+      operationId: getTrendingFeed
+      parameters:
+      - name: view
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - LIST
+          - CALENDAR
+      - name: month
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: nation
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - JP
+          - KR
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - DDAY
+          - RECENTLY_ANNOUNCED
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CursorResponseConcertDto"
+  /concerts/{concertId}:
+    get:
+      tags:
+      - concert-controller
+      operationId: getConcert
+      parameters:
+      - name: concertId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConcertDto"
+  /artists/{artistId}:
+    get:
+      tags:
+      - artist-controller
+      operationId: getArtist
+      parameters:
+      - name: artistId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ArtistDto"
+  /users/me/followed-artists/{artistId}:
+    delete:
+      tags:
+      - user-controller
+      operationId: unfollowArtist
+      parameters:
+      - name: artistId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /users/me/bookmarked-concerts/{concertId}:
+    delete:
+      tags:
+      - user-controller
+      operationId: unbookmarkConcert
+      parameters:
+      - name: concertId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    OnboardingRequest:
+      type: object
+      properties:
+        followedArtistIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+    FollowArtistRequest:
+      type: object
+      properties:
+        artistId:
+          type: string
+          format: uuid
+      required:
+      - artistId
+    BookmarkConcertRequest:
+      type: object
+      properties:
+        concertId:
+          type: string
+          format: uuid
+      required:
+      - concertId
+    ChannelsPatch:
+      type: object
+      properties:
+        email:
+          type: boolean
+        kakao:
+          type: boolean
+    NotificationPreferencesPatchDto:
+      type: object
+      properties:
+        channels:
+          $ref: "#/components/schemas/ChannelsPatch"
+        topics:
+          $ref: "#/components/schemas/TopicsPatch"
+    TopicsPatch:
+      type: object
+      properties:
+        generalWeeklyUpdates:
+          type: boolean
+        artistNewConcert:
+          type: boolean
+        bookmarkedEventTicketOpen:
+          type: boolean
+    NotificationPreferencesDto:
+      type: object
+      properties:
+        channelEmailEnabled:
+          type: boolean
+        channelKakaoEnabled:
+          type: boolean
+        generalWeeklyUpdates:
+          type: boolean
+        artistNewConcertEnabled:
+          type: boolean
+        bookmarkedEventTicketOpenEnabled:
+          type: boolean
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        name:
+          type: string
+        preferredLocale:
+          type: string
+        onboardingCompleted:
+          type: boolean
+    ArtistDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        genre:
+          type: string
+        nation:
+          type: string
+          enum:
+          - JP
+          - KR
+        linkUrls:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArtistLinkDto"
+        imageUrl:
+          type: string
+    ArtistLinkDto:
+      type: object
+      properties:
+        platform:
+          type: string
+        url:
+          type: string
+    ConcertDto:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        date:
+          type: string
+          format: date-time
+        place:
+          type: string
+        durationMinutes:
+          type: integer
+          format: int32
+        ticketingUrl:
+          type: string
+        nation:
+          type: string
+    CursorResponseConcertDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConcertDto"
+        nextCursor:
+          type: string
+        hasNext:
+          type: boolean
+    BookmarkedConcertDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        concertId:
+          type: string
+          format: uuid
+    CursorResponseArtistDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArtistDto"
+        nextCursor:
+          type: string
+        hasNext:
+          type: boolean
+    SearchResponse:
+      type: object
+      properties:
+        artists:
+          $ref: "#/components/schemas/CursorResponseArtistDto"
+        concerts:
+          $ref: "#/components/schemas/CursorResponseConcertDto"
