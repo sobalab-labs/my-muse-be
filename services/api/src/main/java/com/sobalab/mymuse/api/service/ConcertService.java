@@ -3,6 +3,8 @@ package com.sobalab.mymuse.api.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Limit;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.sobalab.mymuse.api.dto.ConcertDto;
+import com.sobalab.mymuse.api.dto.CursorResponse;
 import com.sobalab.mymuse.api.model.Concert;
 import com.sobalab.mymuse.api.model.enums.CountryCode;
 import com.sobalab.mymuse.api.model.enums.FeedSort;
@@ -24,6 +27,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConcertService {
     private final ConcertRepository concertRepository;
+
+    @Transactional(readOnly = true)
+    public CursorResponse<ConcertDto> search(String query, String cursor, int pageSize) {
+        String title = null;
+        UUID id = null;
+        if (cursor != null && !cursor.isBlank()) {
+            try {
+                String[] parts = new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8).split("\\n", 2);
+                if (parts.length != 2) throw new IllegalArgumentException();
+                title = parts[0]; id = UUID.fromString(parts[1]);
+            } catch (IllegalArgumentException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid concert search cursor");
+            }
+        }
+        List<ConcertDto> rows = concertRepository.searchConcerts(query, null, title, id, Limit.of(pageSize + 1))
+                .stream().map(ConcertDto::from).toList();
+        boolean hasNext = rows.size() > pageSize;
+        List<ConcertDto> items = hasNext ? rows.subList(0, pageSize) : rows;
+        String next = hasNext ? Base64.getUrlEncoder().withoutPadding().encodeToString(
+                (items.get(items.size() - 1).title() + "\n" + items.get(items.size() - 1).id()).getBytes(StandardCharsets.UTF_8)) : null;
+        return new CursorResponse<>(items, next, hasNext);
+    }
 
     /**
      * Queries a normalized feed range and maps entities while the read transaction
