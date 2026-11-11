@@ -1,0 +1,1 @@
+"""Validated external configuration schemas."""

@@ -1,16 +1,58 @@
 [project]
-name = "collector"
+name = "my-muse-collector"
 version = "0.1.0"
-description = "Add your description here"
+description = "Scheduled concert source collector"
 readme = "README.md"
 authors = [
     { name = "Pyo Hyeon", email = "megatwins@kaist.ac.kr" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pydantic>=2.7,<3",
+    "pydantic-settings>=2.2,<3",
+    "scrapy>=2.11,<3",
+    "tzdata>=2024.1",
+]
 
 [project.scripts]
-collector = "collector:main"
+collector = "my_muse_collector.main:main"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.10,<2",
+    "pytest>=8,<9",
+    "pytest-cov>=5,<7",
+    "pytest-asyncio>=0.23,<2",
+    "ruff>=0.5,<1",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--strict-config", "--strict-markers", "-ra", "--cov=my_muse_collector", "--cov-report=term-missing"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+branch = true
+source = ["my_muse_collector"]
+omit = ["*/handler.py", "*/main.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
 
 [build-system]
 requires = ["uv_build>=0.9.11,<0.10.0"]
